@@ -8,8 +8,6 @@ router.post('/', auth, TeamController.create);
 
 router.get('/', TeamController.get);
 
-router.get('/get-by-season-competition/:season/:competition', TeamController.getBySeasonCompetition);
-
-router.get('/get-avg-stats-teams/:season/:competition/:stat', TeamController.getAvgStat);
+router.get('/stats', TeamController.getAvgStat);
 
 export default router;

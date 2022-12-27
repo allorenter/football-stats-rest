@@ -48,7 +48,7 @@ exports.getBySeasonCompetition = async (req, res, next) => {
 
 exports.getAvgStat = async (req, res, next) => {
   try {
-    const { season, competition, stat } = req.params;
+    const { season, competition, stat } = req.query;
     if (!isValidSeason(season) || !competition || !stat) {
       throw new BadRequest('Campos requeridos incorrectos');
     }

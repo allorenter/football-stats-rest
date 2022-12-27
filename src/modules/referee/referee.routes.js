@@ -8,8 +8,6 @@ router.post('/', auth, refereeController.create);
 
 router.get('/', refereeController.get);
 
-router.get('/get-by-competition/:competition', refereeController.getByCompetition);
-
-router.post('/get-by-seasons-competition', refereeController.getBySeasonCompetition);
+router.get('/stats', refereeController.getBySeasonCompetition);
 
 export default router;
