@@ -1,11 +1,12 @@
 import express from 'express';
 import TeamController from './team.controller';
+import auth from '../../middleware/auth';
 
 const router = express.Router();
 
-router.post('/create', TeamController.create);
+router.post('/', auth, TeamController.create);
 
-router.get('/get', TeamController.get);
+router.get('/', TeamController.get);
 
 router.get('/get-by-season-competition/:season/:competition', TeamController.getBySeasonCompetition);
 

@@ -63,6 +63,8 @@ function onError(error) {
  */
 const server = http.createServer(app);
 
+console.log('Running on port ', port);
+
 const debug = debugLib('genkitexpress:server');
 
 /**

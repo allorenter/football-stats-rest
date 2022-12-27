@@ -3,7 +3,7 @@ import MatchController from './match.controller';
 
 const router = express.Router();
 
-router.get('/get', MatchController.get);
+router.get('/', MatchController.get);
 
 router.get('/get-by-competition/:_id', MatchController.getByCompetition);
 

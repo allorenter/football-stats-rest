@@ -1,10 +1,11 @@
 import express from 'express';
 import DownloadController from './download.controller';
+import auth from '../../middleware/auth';
 
 const router = express.Router();
 
-router.post('/download', DownloadController.executeDownload);
+router.post('/force', auth, DownloadController.executeDownload);
 
-router.get('/last-download', DownloadController.getLastDownload);
+router.get('/last', DownloadController.getLastDownload);
 
 export default router;

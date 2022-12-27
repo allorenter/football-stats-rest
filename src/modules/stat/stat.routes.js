@@ -1,10 +1,11 @@
 import express from 'express';
 import StatController from './stat.controller';
+import auth from '../../middleware/auth';
 
 const router = express.Router();
 
-router.post('/create', StatController.create);
+router.post('/', auth, StatController.create);
 
-router.get('/get', StatController.get);
+router.get('/', StatController.get);
 
 export default router;
