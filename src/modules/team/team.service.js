@@ -1,26 +1,11 @@
-import { union, find, map } from 'lodash';
-import TeamModel from './team.model';
+import { find, map } from 'lodash';
 import MatchModel from '../match/match.model';
 import { getFilterSeasonCompetition } from '../../utils/functions';
 import StatService from '../stat/stat.service';
 
 const TeamService = () => {
-  const insert = (stat) => new TeamModel(stat).save();
+  const getTeams = async (season, competition) => {
 
-  const get = async () => TeamModel.find();
-
-  const getBySeasonCompetition = async (season, competition) => {
-    const result = await MatchModel.aggregate([
-      { $match: getFilterSeasonCompetition(season, competition) },
-      {
-        $group: {
-          _id: null,
-          hometeam: { $addToSet: '$hometeam' },
-          awayteam: { $addToSet: '$awayteam' },
-        },
-      },
-    ]);
-    return union(result[0].hometeam, result[0].awayteam).sort();
   };
 
   const getAvgStat = async (season, competition, stat) => {
@@ -60,10 +45,22 @@ const TeamService = () => {
     });
   };
 
+  // const getBySeasonCompetition = async (season, competition) => {
+  //   const result = await MatchModel.aggregate([
+  //     { $match: getFilterSeasonCompetition(season, competition) },
+  //     {
+  //       $group: {
+  //         _id: null,
+  //         hometeam: { $addToSet: '$hometeam' },
+  //         awayteam: { $addToSet: '$awayteam' },
+  //       },
+  //     },
+  //   ]);
+  //   return union(result[0].hometeam, result[0].awayteam).sort();
+  // };
+
   return Object.freeze({
-    insert,
-    get,
-    getBySeasonCompetition,
+    getTeams,
     getAvgStat,
   });
 };
