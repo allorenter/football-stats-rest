@@ -4,15 +4,12 @@ import { mapKeys, flattenDeep } from 'lodash';
 import DownloadModel from './download.model';
 import MatchService from '../match/match.service';
 import CompetitionService from '../competition/competition.service';
-import { isArrayNotEmpty, yearToSeason, lowerCaseString } from '../../utils/functions';
+import { isArrayNotEmpty, lowerCaseString } from '../../utils/functions';
 import InvalidCompetititons from '../../utils/errors/invalid-competitions';
+import { FIRST_YEAR, URL_DOWNLOAD_SERVER } from '../../constants';
 
 const DownloadService = () => {
   const date = new Date();
-  // año de la primera temporada con datos para descargar
-  const firsYear = parseInt(process.env.FIRST_YEAR, 10);
-  // año de la temporada actual
-  const actualYear = parseInt(process.env.ACTUAL_YEAR_SEASON, 10);
 
   /**
      * Renombra algunas de las claves de las columnas del CSV descargado porque
@@ -43,7 +40,9 @@ const DownloadService = () => {
     const match = objMatch;
     if (match.Date) {
       const arrDates = match.Date.split('/');
-      match.Date = new Date(arrDates[2], arrDates[1] - 1, arrDates[0]);
+      const prefix = parseInt(arrDates[2], 10) >= FIRST_YEAR.toString().substring(2) ? '19' : '20';
+      const year = arrDates[2]?.length === 2 ? `${prefix}${arrDates[2]}` : arrDates[2];
+      match.Date = new Date(year, arrDates[1] - 1, arrDates[0]);
     }
     return mapKeys(match, (value, key) => lowerCaseString(renamedProperties[key] || key));
   };
@@ -52,11 +51,11 @@ const DownloadService = () => {
     * Descarga los datos en formato CSV de una competición en una temporada
     *
     */
-  const downloadCsv = (year, competition) => new Promise((resolve, reject) => {
+  const downloadCsv = (competition) => new Promise((resolve, reject) => {
     // Genera un string con el formato correcto de la temporada que hay que usar para la descarga
-    const season = yearToSeason(year);
+    const season = process.env.DOWNLOAD_SEASON;
     const results = [];
-    const url = `${process.env.URL_DOWNLOAD_SERVER + season}/${competition}.csv`;
+    const url = `${URL_DOWNLOAD_SERVER + season}/${competition}.csv`;
     console.log('DOWNLOAD', url);
     https.get(url, (data) => {
       data
@@ -66,27 +65,6 @@ const DownloadService = () => {
         .on('error', (err) => reject(err));
     }).on('error', (err) => reject(err));
   });
-
-  /**
-    * Descarga los partidos de la temporada actual para las competiciones especificadas
-    *
-    */
-  const actualSeason = async (competitions) => {
-    const promises = competitions.map(async (competition) => downloadCsv(actualYear, competition));
-    return Promise.all(promises);
-  };
-
-  /**
-    * Descarga los partidos de todas las temporadas disponibles para las competiciones especificadas
-    *
-    */
-  const allSeasons = (competitions) => {
-    const promises = [];
-    for (let year = firsYear; year <= actualYear; year += 1) {
-      promises.push(...competitions.map(async (competition) => downloadCsv(year, competition)));
-    }
-    return Promise.all(promises);
-  };
 
   /**
     * Guarda los datos de la descarga en base de datos
@@ -116,7 +94,7 @@ const DownloadService = () => {
     * Ejecuta la descarga de los partidos y los inserta en base de datos
     *
     */
-  const executeDownload = async (type = 'actual') => {
+  const executeDownload = async () => {
     try {
       // Competiciones a descargar
       const competitionService = CompetitionService();
@@ -126,7 +104,8 @@ const DownloadService = () => {
       }
       // Descarga e insercción de los partidos
       const matchService = MatchService();
-      const downloadedMatches = type === 'all' ? await allSeasons(competitions) : await actualSeason(competitions);
+      const downloadedPromises = competitions.map(async (competition) => downloadCsv(competition));
+      const downloadedMatches = await Promise.all(downloadedPromises);
       const download = await matchService.insertMatches(flattenDeep(downloadedMatches));
       await saveDownloadInfo(download.length || 0);
     } catch (e) {

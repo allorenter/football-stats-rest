@@ -1,3 +1,5 @@
+import { FIRST_YEAR } from '../constants';
+
 /**
  *  Comprueba si una variable es un array y no está vacío
  *
@@ -16,22 +18,13 @@ export const isValidSeason = (season) => {
   if (typeof strSeason !== 'string' || strSeason.length !== 4) {
     return false;
   }
-  const firstPart = strSeason.substr(0, 2);
-  const secondPart = strSeason.substr(2);
+  const firstPart = strSeason.substring(0, 2);
+  const secondPart = strSeason.substring(2);
   if (Number.isNaN(firstPart) || Number.isNaN(secondPart)) {
     return false;
   }
   return true;
 };
-
-/**
- * Convierte un año en el formato de temporaada que usaremos
- * para descargar los partidos desde el servidor
- *
- * @param {int} year
- */
-// eslint-disable-next-line max-len
-export const yearToSeason = (year) => (year - 1).toString().substr(2).concat(year.toString().substr(2));
 
 /**
  * Transforma una temporada en los años que la forman
@@ -42,10 +35,9 @@ export const seasonToYears = (season) => {
   if (!isValidSeason(season)) {
     return false;
   }
-  const actualYear = process.env.FIRST_YEAR.toString();
-  const prefix = actualYear.substr(2) < season.substr(2) ? '19' : '20';
-  const seasonFirsPart = season.substr(0, 2);
-  const seasonSecondPart = season.substr(2);
+  const prefix = FIRST_YEAR.substring(2) < season.substring(2) ? '19' : '20';
+  const seasonFirsPart = season.substring(0, 2);
+  const seasonSecondPart = season.substring(2);
   const response = {
     firstYear: parseInt(prefix + seasonFirsPart, 10),
     secondYear: parseInt(prefix + seasonSecondPart, 10),
@@ -83,14 +75,7 @@ export const getDatesSeason = (season) => {
  */
 export const lowerCaseString = (str) => str.toLowerCase();
 
-/**
- * Construye el filtro usado para buscar por temporada y competición
- *
- * @param {String} season
- * @param {String} competition
- */
-
-export const getFilterSeasonCompetition = (season, competition) => {
+export const getFilterSeason = (season) => {
   if (!isValidSeason(season)) {
     return false;
   }
@@ -100,15 +85,5 @@ export const getFilterSeasonCompetition = (season, competition) => {
       $gte: datesCompetition.initialDate,
       $lt: datesCompetition.finishDate,
     },
-    competition,
-  };
-};
-
-export const getFilterSeasonsCompetition = (seasons, competition) => {
-  if (!isArrayNotEmpty(seasons)) {
-    return false;
-  }
-  return {
-    $or: seasons.map((season) => getFilterSeasonCompetition(season, competition)),
   };
 };

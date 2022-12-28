@@ -1,65 +1,100 @@
 import { map } from 'lodash';
-import RefereeModel from './referee.model';
 import MatchModel from '../match/match.model';
 import StatService from '../stat/stat.service';
-import { getFilterSeasonsCompetition } from '../../utils/functions';
+import { getFilterSeason } from '../../utils/functions';
 
 const RefereeService = () => {
-  const insert = (stat) => new RefereeModel(stat).save();
+  const getReferees = async ({ season, competition }) => {
+    const filter = {};
 
-  const get = async () => RefereeModel.find();
+    if (season) {
+      const seasonFilter = getFilterSeason(season);
+      filter.matchdate = seasonFilter.matchdate;
+    }
 
-  const getByCompetition = async (competition) => MatchModel.distinct('referee', { competition });
+    if (competition) {
+      filter.competition = competition;
+    }
 
-  const getBySeasonsCompetition = async (seasons, competition) => {
-    const filter = getFilterSeasonsCompetition(seasons, competition);
+    const referees = await MatchModel.aggregate([
+      {
+        $match: filter,
+      },
+      {
+        $group: {
+          _id: '$referee',
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+    ]);
+
+    return referees
+      .filter((referee) => referee._id !== null && referee._id !== '')
+      .map((referee) => ({ name: referee._id }));
+  };
+
+  const getBySeasonsCompetition = async ({ season, competition }) => {
+    const filter = {};
+
+    if (season) {
+      const seasonFilter = getFilterSeason(season);
+      filter.matchdate = seasonFilter.matchdate;
+    }
+
+    if (competition) {
+      filter.competition = competition;
+    }
+
     const statService = StatService();
     const statYellows = statService.formatStat('y');
     const statRedCards = statService.formatStat('r');
-    if (filter) {
-      const referees = await MatchModel.aggregate([
-        {
-          $match: filter,
+
+    const referees = await MatchModel.aggregate([
+      {
+        $match: filter,
+      },
+      {
+        $group: {
+          _id: '$referee',
+          homeYellowCards: { $avg: `$${statYellows.home}` },
+          awayYellowCards: { $avg: `$${statYellows.away}` },
+          homeRedCards: { $avg: `$${statRedCards.home}` },
+          awayRedCards: { $avg: `$${statRedCards.away}` },
         },
-        {
-          $group: {
-            _id: '$referee',
-            homeYellowCards: { $avg: `$${statYellows.home}` },
-            awayYellowCards: { $avg: `$${statYellows.away}` },
-            homeRedCards: { $avg: `$${statRedCards.home}` },
-            awayRedCards: { $avg: `$${statRedCards.away}` },
-          },
+      },
+      {
+        $sort: {
+          _id: 1,
         },
-        {
-          $sort: {
-            _id: 1,
-          },
+      },
+    ]);
+
+    if (referees.length > 0) {
+      return map(referees, (referee) => ({
+        refereeId: referee._id,
+        refereeName: referee._id,
+        yellowCards: {
+          homeTeam: referee.homeYellowCards,
+          awayTeam: referee.awayYellowCards,
+          total: referee.homeYellowCards + referee.awayYellowCards,
         },
-      ]);
-      if (referees.length > 0) {
-        return map(referees, (referee) => ({
-          refereeId: referee._id,
-          refereeName: referee._id,
-          yellowCards: {
-            homeTeam: referee.homeYellowCards,
-            awayTeam: referee.awayYellowCards,
-            total: referee.homeYellowCards + referee.awayYellowCards,
-          },
-          redCards: {
-            homeTeam: referee.homeRedCards,
-            awayTeam: referee.awayRedCards,
-            total: referee.homeRedCards + referee.awayRedCards,
-          },
-        })).filter((refereeData) => refereeData.refereeId !== null);
-      }
+        redCards: {
+          homeTeam: referee.homeRedCards,
+          awayTeam: referee.awayRedCards,
+          total: referee.homeRedCards + referee.awayRedCards,
+        },
+      })).filter((refereeData) => refereeData.refereeId !== null);
     }
+
     return [];
   };
 
   return Object.freeze({
-    insert,
-    get,
-    getByCompetition,
+    getReferees,
     getBySeasonsCompetition,
   });
 };
