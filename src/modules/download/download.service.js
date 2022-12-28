@@ -1,5 +1,5 @@
 import csv from 'csv-parser';
-import http from 'http';
+import https from 'https';
 import { mapKeys, flattenDeep } from 'lodash';
 import DownloadModel from './download.model';
 import MatchService from '../match/match.service';
@@ -12,9 +12,7 @@ const DownloadService = () => {
   // año de la primera temporada con datos para descargar
   const firsYear = parseInt(process.env.FIRST_YEAR, 10);
   // año de la temporada actual
-  const actualYear = parseInt(process.env.ACTUAL_YEAR, 10);
-  // Indica si la tarea descargará los partidos de todas las temporadas o solo de la actual
-  const downloadType = process.env.DOWNLOAD_TYPE;
+  const actualYear = parseInt(process.env.ACTUAL_YEAR_SEASON, 10);
 
   /**
      * Renombra algunas de las claves de las columnas del CSV descargado porque
@@ -60,7 +58,7 @@ const DownloadService = () => {
     const results = [];
     const url = `${process.env.URL_DOWNLOAD_SERVER + season}/${competition}.csv`;
     console.log('DOWNLOAD', url);
-    http.get(url, (data) => {
+    https.get(url, (data) => {
       data
         .pipe(csv())
         .on('data', (downloadedData) => results.push(formatData(downloadedData)))
@@ -118,7 +116,7 @@ const DownloadService = () => {
     * Ejecuta la descarga de los partidos y los inserta en base de datos
     *
     */
-  const executeDownload = async () => {
+  const executeDownload = async (type = 'actual') => {
     try {
       // Competiciones a descargar
       const competitionService = CompetitionService();
@@ -128,7 +126,7 @@ const DownloadService = () => {
       }
       // Descarga e insercción de los partidos
       const matchService = MatchService();
-      const downloadedMatches = downloadType === 'all' ? await allSeasons(competitions) : await actualSeason(competitions);
+      const downloadedMatches = type === 'all' ? await allSeasons(competitions) : await actualSeason(competitions);
       const download = await matchService.insertMatches(flattenDeep(downloadedMatches));
       await saveDownloadInfo(download.length || 0);
     } catch (e) {

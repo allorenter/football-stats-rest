@@ -1,8 +1,7 @@
 const { API_KEY } = process.env;
 
 function auth(req, res, next) {
-  const valid = req.headers.API_KEY === API_KEY;
-
+  const valid = req.headers.api_key === API_KEY;
   if (valid) {
     return next();
   }
