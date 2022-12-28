@@ -5,7 +5,8 @@ const downloadService = DownloadService();
 
 exports.executeDownload = async (req, res, next) => {
   try {
-    downloadService.executeDownload();
+    const { type } = req.query;
+    downloadService.executeDownload(type);
     return succesResponse(res, 'Descarga Iniciada', {});
   } catch (err) {
     next(err);

@@ -1,6 +1,7 @@
 import RefereeService from './referee.service';
 import BadRequest from '../../utils/errors/bad-request';
 import succesResponse from '../../utils/response';
+import { isValidSeason } from '../../utils/functions';
 
 const refereeService = RefereeService();
 
@@ -46,10 +47,13 @@ exports.getByCompetition = async (req, res, next) => {
 
 exports.getBySeasonCompetition = async (req, res, next) => {
   try {
-    // VALIDARLO BIEN
-    const competition = req.body.competition || 'E0';
-    const seasons = ['2021'];
-    return succesResponse(res, 'Arbitros de la competicion', await refereeService.getBySeasonsCompetition(seasons, competition));
+    const { season, competition } = req.query;
+    if (!isValidSeason(season) || !competition) {
+      throw new BadRequest('Campos requeridos incorrectos');
+    }
+    const comp = competition || 'E0';
+    const seasons = [season];
+    return succesResponse(res, 'Arbitros de la competicion', await refereeService.getBySeasonsCompetition(seasons, comp));
   } catch (err) {
     next(err);
     return null;

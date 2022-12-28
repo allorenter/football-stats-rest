@@ -1,12 +1,13 @@
 import express from 'express';
 import CompetitionController from './competition.controller';
+import auth from '../../middleware/auth';
 
 const router = express.Router();
 
-router.post('/create', CompetitionController.create);
+router.get('/', CompetitionController.get);
 
-router.delete('/delete/:_id', CompetitionController.deleteCompetition);
+router.post('/', auth, CompetitionController.create);
 
-router.get('/get', CompetitionController.get);
+router.delete('/', auth, CompetitionController.deleteCompetition);
 
 export default router;

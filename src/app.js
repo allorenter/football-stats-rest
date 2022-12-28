@@ -26,7 +26,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 app.use(helmet());
-app.use('/api/download-matches', downloadRouter);
+app.use('/api/download', downloadRouter);
 app.use('/api/competition', competitionRouter);
 app.use('/api/team', teamRouter);
 app.use('/api/stat', statRouter);

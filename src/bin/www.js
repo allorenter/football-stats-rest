@@ -3,7 +3,7 @@
 /**
  * Module dependencies.
  */
-
+import '@babel/polyfill';
 import debugLib from 'debug';
 import http from 'http';
 import app from '../app';
@@ -62,6 +62,8 @@ function onError(error) {
  * Create HTTP server.
  */
 const server = http.createServer(app);
+
+console.log('Running on port ', port);
 
 const debug = debugLib('genkitexpress:server');
 
