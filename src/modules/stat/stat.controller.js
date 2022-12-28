@@ -22,9 +22,9 @@ exports.create = async (req, res, next) => {
   }
 };
 
-exports.get = async (req, res, next) => {
+exports.getStats = async (req, res, next) => {
   try {
-    const stats = await statService.get();
+    const stats = await statService.getStats();
     return succesResponse(res, 'Estadísticas disponibles', stats);
   } catch (err) {
     next(err);

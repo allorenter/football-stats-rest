@@ -3,7 +3,7 @@ import StatModel from './stat.model';
 const StatService = () => {
   const insert = (stat) => new StatModel(stat).save();
 
-  const get = async () => StatModel.find();
+  const getStats = async () => StatModel.find();
 
   const getByTypes = async () => StatModel.find({ type: 'match_statistics' });
 
@@ -22,7 +22,7 @@ const StatService = () => {
 
   return Object.freeze({
     insert,
-    get,
+    getStats,
     getByTypes,
     formatStat,
   });
