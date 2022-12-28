@@ -112,3 +112,16 @@ export const getFilterSeasonsCompetition = (seasons, competition) => {
     $or: seasons.map((season) => getFilterSeasonCompetition(season, competition)),
   };
 };
+
+export const getFilterSeason = (season) => {
+  if (!isValidSeason(season)) {
+    return false;
+  }
+  const datesCompetition = getDatesSeason(season);
+  return {
+    matchdate: {
+      $gte: datesCompetition.initialDate,
+      $lt: datesCompetition.finishDate,
+    },
+  };
+};

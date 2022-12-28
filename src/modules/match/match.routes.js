@@ -3,6 +3,6 @@ import MatchController from './match.controller';
 
 const router = express.Router();
 
-router.get('/', MatchController.get);
+router.get('/', MatchController.getMatches);
 
 export default router;
