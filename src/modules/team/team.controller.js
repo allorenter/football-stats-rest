@@ -1,18 +1,15 @@
 import TeamService from './team.service';
 import BadRequest from '../../utils/errors/bad-request';
-import succesResponse from '../../utils/response';
 
 const teamService = TeamService();
 
 exports.getTeams = async (req, res, next) => {
   try {
     const { season, competition } = req.query;
-
     const teams = await teamService.getTeams({ season, competition });
-    return succesResponse(res, 'Equipos disponibles', teams);
+    return res.status(200).json(teams);
   } catch (err) {
-    next(err);
-    return null;
+    return next(err);
   }
 };
 
@@ -25,9 +22,8 @@ exports.getAvgStats = async (req, res, next) => {
     }
 
     const result = await teamService.getAvgStat({ season, competition, stat });
-    return succesResponse(res, 'Datos disponibles', result);
+    return res.status(200).json(result);
   } catch (err) {
-    next(err);
-    return null;
+    return next(err);
   }
 };
