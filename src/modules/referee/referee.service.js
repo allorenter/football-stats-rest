@@ -93,9 +93,33 @@ const RefereeService = () => {
     return [];
   };
 
+  const getMatches = async ({ season, competition, referee }) => {
+    const filter = {};
+
+    if (season) {
+      const seasonFilter = getFilterSeason(season);
+      filter.matchdate = seasonFilter.matchdate;
+    }
+
+    if (competition) {
+      filter.competition = competition;
+    }
+
+    const regex = new RegExp(`(${referee})`, 'i');
+    const matches = await MatchModel.find({
+      ...filter,
+      referee: {
+        $regex: regex,
+      },
+    }, 'competition matchdate hometeam awayteam referee hy ay hr ar');
+
+    return matches;
+  };
+
   return Object.freeze({
     getReferees,
     getBySeasonsCompetition,
+    getMatches,
   });
 };
 

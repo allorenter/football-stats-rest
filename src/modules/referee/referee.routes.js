@@ -7,4 +7,6 @@ router.get('/', refereeController.getReferees);
 
 router.get('/stats', refereeController.getAvgStats);
 
+router.get('/matches', refereeController.getMatches);
+
 export default router;
