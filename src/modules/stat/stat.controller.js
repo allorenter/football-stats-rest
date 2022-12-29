@@ -1,6 +1,5 @@
 import StatService from './stat.service';
 import BadRequest from '../../utils/errors/bad-request';
-import succesResponse from '../../utils/response';
 
 const statService = StatService();
 
@@ -15,19 +14,17 @@ exports.create = async (req, res, next) => {
       name,
       type,
     });
-    return succesResponse(res, 'Estadística creada', stat);
+    return res.status(200).json(stat);
   } catch (err) {
-    next(err);
-    return null;
+    return next(err);
   }
 };
 
 exports.getStats = async (req, res, next) => {
   try {
     const stats = await statService.getStats();
-    return succesResponse(res, 'Estadísticas disponibles', stats);
+    return res.status(200).json(stats);
   } catch (err) {
-    next(err);
-    return null;
+    return next(err);
   }
 };

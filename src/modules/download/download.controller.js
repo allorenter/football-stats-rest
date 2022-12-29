@@ -1,23 +1,21 @@
 import DownloadService from './download.service';
-import succesResponse from '../../utils/response';
 
 const downloadService = DownloadService();
 
 exports.executeDownload = async (req, res, next) => {
   try {
     downloadService.executeDownload();
-    return succesResponse(res, 'Descarga Iniciada', {});
+    return res.status(200).json({ message: 'Descarga Iniciada' });
   } catch (err) {
-    next(err);
-    return null;
+    return next(err);
   }
 };
 
 exports.getLastDownload = async (req, res, next) => {
   try {
-    return succesResponse(res, 'Última descarga', await downloadService.getLastDownload());
+    const last = await downloadService.getLastDownload();
+    return res.status(200).json(last);
   } catch (err) {
-    next(err);
-    return null;
+    return next(err);
   }
 };

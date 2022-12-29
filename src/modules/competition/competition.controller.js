@@ -1,6 +1,5 @@
 import CompetitionService from './competition.service';
 import BadRequest from '../../utils/errors/bad-request';
-import succesResponse from '../../utils/response';
 
 const competitionService = CompetitionService();
 
@@ -11,20 +10,18 @@ exports.create = async (req, res, next) => {
       throw new BadRequest('_id y name requeridos');
     }
     const competition = await competitionService.insert({ _id: _id.toUpperCase(), name });
-    return succesResponse(res, 'Competicion creada', competition);
+    return res.status(200).json(competition);
   } catch (err) {
-    next(err);
-    return null;
+    return next(err);
   }
 };
 
 exports.get = async (req, res, next) => {
   try {
     const competitions = await competitionService.get();
-    return succesResponse(res, 'Competiciones disponibles', competitions);
+    return res.status(200).json(competitions);
   } catch (err) {
-    next(err);
-    return null;
+    return next(err);
   }
 };
 
@@ -32,9 +29,8 @@ exports.deleteCompetition = async (req, res, next) => {
   try {
     const { _id } = req.params;
     const deleted = await competitionService.deleteCompetition(_id);
-    return succesResponse(res, 'Competición eliminada', deleted);
+    return res.status(200).json(deleted);
   } catch (err) {
-    next(err);
-    return null;
+    return next(err);
   }
 };

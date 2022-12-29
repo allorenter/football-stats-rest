@@ -1,5 +1,4 @@
 import RefereeService from './referee.service';
-import succesResponse from '../../utils/response';
 import BadRequest from '../../utils/errors/bad-request';
 
 const refereeService = RefereeService();
@@ -7,9 +6,8 @@ const refereeService = RefereeService();
 exports.getReferees = async (req, res, next) => {
   try {
     const { season, competition } = req.query;
-
     const referees = await refereeService.getReferees({ season, competition });
-    return succesResponse(res, 'Arbitros disponibles', referees);
+    return res.status(200).json(referees);
   } catch (err) {
     return next(err);
   }
@@ -18,9 +16,8 @@ exports.getReferees = async (req, res, next) => {
 exports.getAvgStats = async (req, res, next) => {
   try {
     const { season, competition } = req.query;
-
     const referees = await refereeService.getBySeasonsCompetition({ season, competition });
-    return succesResponse(res, 'Arbitros de la competicion', referees);
+    return res.status(200).json(referees);
   } catch (err) {
     return next(err);
   }
